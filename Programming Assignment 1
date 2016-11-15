@@ -1,1 +1,42 @@
 
+#specdata Part 1
+
+pollutantmean <- function(directory, pollutant, id = 1:332){
+        files_list <- list.files(directory, full.names=TRUE)          
+        data <- data.frame()
+        for (i in id){
+        data <- rbind(data, read.csv(files_list[i]))
+        }
+        mean(data[,pollutant], na.rm=TRUE)
+}
+
+
+#specdata Part 2
+
+complete <- function(directory, id = 1:332){
+        #directory
+        files_list <- list.files(directory, full.names=TRUE)          
+        data <- data.frame()
+        nobs <- numeric()
+        j <- 1
+        for (i in id){
+        data <- rbind(data, read.csv(files_list[i]))
+        nobs[j] <- sum(complete.cases(subset(data, ID == i)))
+         j <- j + 1 
+        }
+        return(data.frame(id,nobs))
+}
+
+
+#specdata Part 3
+corr <- function(directory, threshold = 0){
+        files_list <- list.files(directory, full.names=TRUE)
+        complete_cases <- complete(directory)
+        selected <- complete_cases[complete_cases$nobs > threshold,]
+        correlation <- numeric()
+        for (i in selected$id){
+                corrdata <- read.csv(files_list[i])
+                correlation <- c(correlation, cor(corrdata$sulfate, corrdata$nitrate,use="na.or.complete"))
+        }
+        correlation
+}
